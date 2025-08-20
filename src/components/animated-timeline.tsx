@@ -127,8 +127,8 @@ export default function AnimatedTimeline() {
         </div>
 
         <div ref={containerRef} className="relative">
-          {/* Línea central vertical */}
-          <div className="absolute left-1/2 transform -translate-x-px w-px bg-gray-300 h-full">
+          {/* Línea vertical: centrada en desktop, lateral en mobile */}
+          <div className="absolute left-4 sm:left-1/2 transform sm:-translate-x-px w-px bg-gray-300 h-full">
             <motion.div
               className="w-full bg-emerald-500 origin-top"
               style={{ height: lineProgress }}
@@ -151,9 +151,9 @@ export default function AnimatedTimeline() {
                   animate={{ opacity: isVisible ? 1 : 0 }}
                   transition={{ duration: 0.8, delay: index * 0.2 }}
                 >
-                  {/* Año en el centro de la línea */}
+                  {/* Año: centrado en desktop, pegado a la línea en mobile */}
                   <motion.div
-                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20"
+                    className="absolute left-4 sm:left-1/2 top-1/2 transform -translate-y-1/2 sm:-translate-x-1/2 z-20"
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ 
                       scale: isVisible ? 1 : 0,
@@ -168,11 +168,13 @@ export default function AnimatedTimeline() {
                     </div>
                   </motion.div>
 
-                  {/* Contenido principal */}
-                  <div className="grid grid-cols-2 gap-8 items-center">
+                  {/* Contenido principal: apilado en mobile, dos columnas en desktop */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 items-center sm:pl-0 pl-20">
                     {/* Imagen */}
                     <motion.div
-                      className={isLeft ? 'order-1' : 'order-2'}
+                      className={
+                        'order-1 sm:' + (isLeft ? 'order-1' : 'order-2')
+                      }
                       initial={{ x: isLeft ? -80 : 80, opacity: 0 }}
                       animate={{ 
                         x: isVisible ? 0 : (isLeft ? -80 : 80), 
@@ -191,7 +193,7 @@ export default function AnimatedTimeline() {
 
                     {/* Texto */}
                     <motion.div
-                      className={`${isLeft ? 'order-2 pl-8' : 'order-1 pr-8'} ${isLeft ? 'text-left' : 'text-right'}`}
+                      className={`order-2 sm:${isLeft ? 'order-2' : 'order-1'} text-left sm:${isLeft ? 'pl-8' : 'pr-8'} pl-0 pr-0`}
                       initial={{ x: isLeft ? 80 : -80, opacity: 0 }}
                       animate={{ 
                         x: isVisible ? 0 : (isLeft ? 80 : -80), 
@@ -202,15 +204,12 @@ export default function AnimatedTimeline() {
                       <h2 className="text-2xl font-bold text-gray-900 mb-4">
                         {event.title}
                       </h2>
-                      
                       <p className="text-gray-600 leading-relaxed mb-4 text-base">
                         {event.description}
                       </p>
-
                       <p className="text-sm text-gray-500 leading-relaxed mb-4">
                         {event.details}
                       </p>
-
                       {/* Categoría */}
                       <div>
                         <span
