@@ -266,17 +266,17 @@ export default function ContactoPage() {
           })}
         </div>
 
-        {/* Quick access floating bar */}
-        <div className="mt-12 flex justify-center">
-          <div className="bg-white/80 backdrop-blur-lg rounded-full p-2 shadow-2xl border border-white/20">
-            <div className="flex items-center space-x-2">
-              <div className="flex items-center space-x-1 px-4 py-2 rounded-full bg-red-500 text-white">
-                <AlertTriangle className="h-4 w-4" />
+        {/* Quick access floating bar - FIXED RESPONSIVE */}
+        <div className="mt-12 flex justify-center px-4">
+          <div className="bg-white/80 backdrop-blur-lg rounded-2xl md:rounded-full p-2 shadow-2xl border border-white/20 w-full max-w-lg md:max-w-none md:w-auto">
+            <div className="flex flex-col md:flex-row items-center gap-2">
+              <div className="flex items-center space-x-1 px-4 py-2 rounded-full bg-red-500 text-white w-full md:w-auto justify-center whitespace-nowrap">
+                <AlertTriangle className="h-4 w-4 flex-shrink-0" />
                 <span className="font-medium text-sm">Emergencia:</span>
                 <span className="font-bold">911</span>
               </div>
-              <div className="flex items-center space-x-1 px-4 py-2 rounded-full bg-blue-500 text-white">
-                <Phone className="h-4 w-4" />
+              <div className="flex items-center space-x-1 px-4 py-2 rounded-full bg-blue-500 text-white w-full md:w-auto justify-center whitespace-nowrap">
+                <Phone className="h-4 w-4 flex-shrink-0" />
                 <span className="font-medium text-sm">General:</span>
                 <span className="font-bold">0800-888-0404</span>
               </div>
@@ -320,7 +320,7 @@ export default function ContactoPage() {
             })}
           </div>
 
-          {/* Map Placeholder */}
+          {/* Map Placeholder - FIXED RESPONSIVE */}
           <Card className="mt-8">
             <CardHeader>
               <CardTitle className="text-lg font-serif flex items-center">
@@ -329,126 +329,123 @@ export default function ContactoPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d54481.110975700234!2d-64.49973669999999!3d-31.412212949999997!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x942d6640d6777c71%3A0x75c24ab6cb121bed!2sVilla%20Carlos%20Paz%2C%20C%C3%B3rdoba!5e0!3m2!1ses-419!2sar!4v1755649306474!5m2!1ses-419!2sar"
-                    width="600"
-                    height="450"
-                    style={{ border: 0 }} // Corrección: de string a objeto
-                    allowFullScreen={true} // Corrección: de string a booleano
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade" // Corrección: de kebab-case a camelCase
-                  ></iframe>
-                </div>
+              <div className="aspect-video bg-muted rounded-lg overflow-hidden">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d54481.110975700234!2d-64.49973669999999!3d-31.412212949999997!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x942d6640d6777c71%3A0x75c24ab6cb121bed!2sVilla%20Carlos%20Paz%2C%20C%C3%B3rdoba!5e0!3m2!1ses-419!2sar!4v1755649306474!5m2!1ses-419!2sar"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen={true}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="w-full h-full"
+                />
               </div>
             </CardContent>
           </Card>
         </div>
 
-   {/* Formulario de Contacto - Hacemos este div "sticky" */}
-      <div className="sticky top-20  h-fit"> {/* <<-- Clases añadidas aquí */}
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-2xl font-serif flex items-center">
-              <MessageCircle className="mr-2 h-6 w-6 text-primary" />
-              Envíanos un Mail
-            </CardTitle>
-            <CardDescription className="text-base">
-              Complete el formulario y nos pondremos en contacto con usted a la brevedad.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* ... (campos del formulario) ... */}
+        {/* Formulario de Contacto - Hacemos este div "sticky" */}
+        <div className="sticky top-20 h-fit">
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-2xl font-serif flex items-center">
+                <MessageCircle className="mr-2 h-6 w-6 text-primary" />
+                Envíanos un Mail
+              </CardTitle>
+              <CardDescription className="text-base">
+                Complete el formulario y nos pondremos en contacto con usted a la brevedad.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="nombre" className="text-sm font-medium">
+                    Nombre Completo
+                  </Label>
+                  <Input
+                    id="nombre"
+                    name="nombre"
+                    type="text"
+                    placeholder="Tu nombre completo"
+                    value={formData.nombre}
+                    onChange={handleChange}
+                    required
+                    className="h-11"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-sm font-medium">
+                    Correo Electrónico
+                  </Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="tu.correo@ejemplo.com"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    className="h-11"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="mensaje" className="text-sm font-medium">
+                    Mensaje
+                  </Label>
+                  <Textarea
+                    id="mensaje"
+                    name="mensaje"
+                    placeholder="Escribe tu mensaje aquí..."
+                    value={formData.mensaje}
+                    onChange={handleChange}
+                    required
+                    rows={6}
+                    className="resize-none"
+                  />
+                </div>
+
+                <Button type="submit" className="w-full h-11 text-base">
+                  <Send className="mr-2 h-4 w-4" />
+                  Enviar Mensaje
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          {/* Emergency Contact */}
+          <Card className="mt-6 bg-destructive/5 border-destructive/20">
+            <CardHeader>
+              <CardTitle className="text-lg font-serif text-destructive flex items-center">
+                <Phone className="mr-2 h-5 w-5" />
+                Contacto de Emergencia
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-3">
+                Para situaciones de emergencia, comuníquese directamente:
+              </p>
               <div className="space-y-2">
-                <Label htmlFor="nombre" className="text-sm font-medium">
-                  Nombre Completo
-                </Label>
-                <Input
-                  id="nombre"
-                  name="nombre"
-                  type="text"
-                  placeholder="Tu nombre completo"
-                  value={formData.nombre}
-                  onChange={handleChange}
-                  required
-                  className="h-11"
-                />
+                <div className="flex items-center space-x-2">
+                  <Phone className="h-4 w-4 text-destructive" />
+                  <span className="font-medium">(123) 987-6543</span>
+                  <span className="text-sm text-muted-foreground">
+                    - Emergencias 24/7
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Mail className="h-4 w-4 text-destructive" />
+                  <span className="font-medium">
+                    emergencias@municipalidad.ejemplo.com
+                  </span>
+                </div>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium">
-                  Correo Electrónico
-                </Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="tu.correo@ejemplo.com"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="h-11"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="mensaje" className="text-sm font-medium">
-                  Mensaje
-                </Label>
-                <Textarea
-                  id="mensaje"
-                  name="mensaje"
-                  placeholder="Escribe tu mensaje aquí..."
-                  value={formData.mensaje}
-                  onChange={handleChange}
-                  required
-                  rows={6}
-                  className="resize-none"
-                />
-              </div>
-
-              <Button type="submit" className="w-full h-11 text-base">
-                <Send className="mr-2 h-4 w-4" />
-                Enviar Mensaje
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        {/* Emergency Contact */}
-        <Card className="mt-6 bg-destructive/5 border-destructive/20">
-          {/* ... (Contenido de contacto de emergencia) ... */}
-          <CardHeader>
-            <CardTitle className="text-lg font-serif text-destructive flex items-center">
-              <Phone className="mr-2 h-5 w-5" />
-              Contacto de Emergencia
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground mb-3">
-              Para situaciones de emergencia, comuníquese directamente:
-            </p>
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <Phone className="h-4 w-4 text-destructive" />
-                <span className="font-medium">(123) 987-6543</span>
-                <span className="text-sm text-muted-foreground">
-                  - Emergencias 24/7
-                </span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Mail className="h-4 w-4 text-destructive" />
-                <span className="font-medium">
-                  emergencias@municipalidad.ejemplo.com
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
 
       <div className="mt-16">
         <div className="text-center mb-12">

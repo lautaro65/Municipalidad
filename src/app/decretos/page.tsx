@@ -1,10 +1,16 @@
+"use client"
+
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Download, Search, Calendar } from "lucide-react"
+import { Download, Search, Calendar, ChevronDown, ChevronRight } from "lucide-react"
 
 export default function DecretosPage() {
+  const [searchTerm, setSearchTerm] = useState("")
+  const [expandedYears, setExpandedYears] = useState<string[]>(["2024"]) // 2024 expandido por defecto
+
   const decretosByYear = {
     2024: [
       {
@@ -153,6 +159,52 @@ export default function DecretosPage() {
     return colors[category] || "bg-gray-100 text-gray-800"
   }
 
+  // Función para filtrar decretos
+  const filterDecretos = (decretos: any[]) => {
+    if (!searchTerm) return decretos
+    
+    return decretos.filter(decreto => 
+      decreto.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      decreto.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      decreto.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      decreto.description.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  }
+
+  // Función para expandir/contraer años
+  const toggleYear = (year: string) => {
+    setExpandedYears(prev => 
+      prev.includes(year) 
+        ? prev.filter(y => y !== year)
+        : [...prev, year]
+    )
+  }
+
+  // Obtener decretos filtrados por año
+  const getFilteredDecretosByYear = () => {
+    const filtered: { [key: string]: any[] } = {}
+    
+    Object.entries(decretosByYear).forEach(([year, decretos]) => {
+      const filteredDecretos = filterDecretos(decretos)
+      if (filteredDecretos.length > 0) {
+        filtered[year] = filteredDecretos
+      }
+    })
+    
+    return filtered
+  }
+
+  const filteredDecretosByYear = getFilteredDecretosByYear()
+  const totalFilteredDecretos = Object.values(filteredDecretosByYear).flat().length
+
+  // Si hay búsqueda activa, expandir todos los años que tienen resultados
+  const shouldExpandYear = (year: string) => {
+    if (searchTerm && filteredDecretosByYear[year]) {
+      return true
+    }
+    return expandedYears.includes(year)
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
@@ -168,69 +220,105 @@ export default function DecretosPage() {
       <div className="mb-8">
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input placeholder="Buscar decretos..." className="pl-10" />
+          <Input 
+            placeholder="Buscar por número, título o categoría..." 
+            className="pl-10" 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
+        {searchTerm && (
+          <p className="text-sm text-muted-foreground mt-2">
+            {totalFilteredDecretos} decreto{totalFilteredDecretos !== 1 ? 's' : ''} encontrado{totalFilteredDecretos !== 1 ? 's' : ''} para "{searchTerm}"
+          </p>
+        )}
       </div>
 
-      {/* Decretos by Year */}
-      <div className="space-y-12">
-        {Object.entries(decretosByYear).map(([year, decretos]) => (
-          <div key={year}>
-            <div className="flex items-center mb-6">
-              <h2 className="text-2xl font-serif font-bold text-primary mr-4">{year}</h2>
-              <div className="flex-1 h-px bg-border"></div>
-              <Badge variant="secondary" className="ml-4">
-                {decretos.length} decretos
-              </Badge>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {decretos.map((decreto, index) => (
-                <Card key={index} className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                  <CardHeader className="pb-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <Badge className={getCategoryColor(decreto.category)}>{decreto.category}</Badge>
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <Calendar className="mr-1 h-4 w-4" />
-                        {decreto.date}
-                      </div>
-                    </div>
-                    <CardTitle className="text-lg font-serif leading-tight">Decreto N° {decreto.number}</CardTitle>
-                    <CardDescription className="font-medium text-foreground">{decreto.title}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground text-sm mb-4 leading-relaxed">{decreto.description}</p>
-                    <Button className="w-full" size="sm">
-                      <Download className="mr-2 h-4 w-4" />
-                      Descargar PDF
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+      {/* Decretos by Year with Collapsible */}
+      <div className="space-y-6">
+        {Object.entries(filteredDecretosByYear).length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground text-lg">No se encontraron decretos que coincidan con tu búsqueda.</p>
           </div>
-        ))}
+        ) : (
+          Object.entries(filteredDecretosByYear).map(([year, decretos]) => (
+            <div key={year} className="border rounded-lg overflow-hidden bg-card">
+              {/* Year Header - Clickable */}
+              <button
+                onClick={() => toggleYear(year)}
+                className="w-full flex items-center justify-between p-6 hover:bg-muted/50 transition-colors"
+              >
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2">
+                    {shouldExpandYear(year) ? (
+                      <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                    ) : (
+                      <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                    )}
+                    <h2 className="text-2xl font-serif font-bold text-primary">{year}</h2>
+                  </div>
+                  <Badge variant="secondary">
+                    {decretos.length} decreto{decretos.length !== 1 ? 's' : ''}
+                  </Badge>
+                </div>
+                <div className="h-px bg-border flex-1 mx-4"></div>
+              </button>
+
+              {/* Decretos Grid - Collapsible */}
+              {shouldExpandYear(year) && (
+                <div className="p-6 pt-0">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {decretos.map((decreto, index) => (
+                      <Card key={index} className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                        <CardHeader className="pb-4">
+                          <div className="flex items-start justify-between mb-2">
+                            <Badge className={getCategoryColor(decreto.category)}>{decreto.category}</Badge>
+                            <div className="flex items-center text-sm text-muted-foreground">
+                              <Calendar className="mr-1 h-4 w-4" />
+                              {decreto.date}
+                            </div>
+                          </div>
+                          <CardTitle className="text-lg font-serif leading-tight">Decreto N° {decreto.number}</CardTitle>
+                          <CardDescription className="font-medium text-foreground">{decreto.title}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-muted-foreground text-sm mb-4 leading-relaxed">{decreto.description}</p>
+                          <Button className="w-full" size="sm">
+                            <Download className="mr-2 h-4 w-4" />
+                            Descargar PDF
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))
+        )}
       </div>
 
       {/* Stats */}
-      <div className="mt-16 bg-muted/30 rounded-2xl p-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-          <div>
-            <div className="text-3xl font-serif font-bold text-primary mb-2">
-              {Object.values(decretosByYear).flat().length}
+      {!searchTerm && (
+        <div className="mt-16 bg-muted/30 rounded-2xl p-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div>
+              <div className="text-3xl font-serif font-bold text-primary mb-2">
+                {Object.values(decretosByYear).flat().length}
+              </div>
+              <p className="text-muted-foreground">Total de Decretos</p>
             </div>
-            <p className="text-muted-foreground">Total de Decretos</p>
-          </div>
-          <div>
-            <div className="text-3xl font-serif font-bold text-primary mb-2">{Object.keys(decretosByYear).length}</div>
-            <p className="text-muted-foreground">Años Disponibles</p>
-          </div>
-          <div>
-            <div className="text-3xl font-serif font-bold text-primary mb-2">100%</div>
-            <p className="text-muted-foreground">Disponibles en PDF</p>
+            <div>
+              <div className="text-3xl font-serif font-bold text-primary mb-2">{Object.keys(decretosByYear).length}</div>
+              <p className="text-muted-foreground">Años Disponibles</p>
+            </div>
+            <div>
+              <div className="text-3xl font-serif font-bold text-primary mb-2">100%</div>
+              <p className="text-muted-foreground">Disponibles en PDF</p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

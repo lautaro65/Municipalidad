@@ -5,7 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, Search, Phone, X } from "lucide-react"
+import { Menu, Search, Phone } from "lucide-react"
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
@@ -93,17 +93,14 @@ export function Navigation() {
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] sm:w-[350px] p-0">
               <div className="flex flex-col h-full">
-                {/* Mobile Header */}
-                <div className="flex items-center justify-between p-6 border-b">
+                {/* Mobile Header - Removido el botón X manual */}
+                <div className="flex items-center p-6 border-b">
                   <div className="flex items-center space-x-2">
                     <div className="h-6 w-6 rounded-full bg-primary flex items-center justify-center">
                       <span className="text-primary-foreground font-bold text-xs">VE</span>
                     </div>
                     <span className="font-serif font-bold text-lg text-primary">Villa Esperanza</span>
                   </div>
-                  <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)} className="hover:bg-primary/10">
-                    <X className="h-4 w-4" />
-                  </Button>
                 </div>
 
                 {/* Mobile Navigation */}
