@@ -6,6 +6,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Download, Search, Calendar, ChevronDown, ChevronRight } from "lucide-react"
+type Decreto = {
+  number: string
+  title: string
+  date: string
+  category: string
+  description: string
+}
 
 export default function DecretosPage() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -160,7 +167,7 @@ export default function DecretosPage() {
   }
 
   // Función para filtrar decretos
-  const filterDecretos = (decretos: any[]) => {
+  const filterDecretos = (decretos: Decreto[]) => {
     if (!searchTerm) return decretos
     
     return decretos.filter(decreto => 
@@ -182,7 +189,7 @@ export default function DecretosPage() {
 
   // Obtener decretos filtrados por año
   const getFilteredDecretosByYear = () => {
-    const filtered: { [key: string]: any[] } = {}
+    const filtered: { [key: string]: Decreto[] } = {}
     
     Object.entries(decretosByYear).forEach(([year, decretos]) => {
       const filteredDecretos = filterDecretos(decretos)
@@ -229,7 +236,8 @@ export default function DecretosPage() {
         </div>
         {searchTerm && (
           <p className="text-sm text-muted-foreground mt-2">
-            {totalFilteredDecretos} decreto{totalFilteredDecretos !== 1 ? 's' : ''} encontrado{totalFilteredDecretos !== 1 ? 's' : ''} para "{searchTerm}"
+            {totalFilteredDecretos} decreto{totalFilteredDecretos !== 1 ? 's' : ''} encontrado{totalFilteredDecretos !== 1 ? 's' : ''} para &quot;{searchTerm}&quot;
+
           </p>
         )}
       </div>

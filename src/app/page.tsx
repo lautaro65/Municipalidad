@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -79,10 +80,13 @@ export default function HomePage() {
             <video autoPlay muted loop playsInline className="w-full h-full object-cover">
               <source src="https://documentos.cordoba.gob.ar/MUNCBA/VIDEO/homeweb25.mp4" type="video/mp4" />
               {/* Fallback image in case video doesn't load */}
-              <img
+              <Image
                 src="/placeholder-csese.png"
                 alt="Funcionarios municipales atendiendo ciudadanos"
                 className="w-full h-full object-cover"
+                fill
+                sizes="100vw"
+                priority={true}
               />
             </video>
             {/* Dark overlay for text readability */}

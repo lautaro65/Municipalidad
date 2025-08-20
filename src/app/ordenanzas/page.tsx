@@ -7,6 +7,12 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Download, Search, Calendar, Filter, ChevronDown, ChevronRight } from "lucide-react"
+type Ordenanza = {
+  title: string
+  date: string
+  category: string
+  description: string
+}
 
 export default function OrdenanzasPage() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -111,7 +117,7 @@ export default function OrdenanzasPage() {
   }
 
   // Función para filtrar ordenanzas por término de búsqueda
-  const filterOrdenanzas = (ordenanzas: any[]) => {
+  const filterOrdenanzas = (ordenanzas: Ordenanza[]) => {
     if (!searchTerm) return ordenanzas
     
     return ordenanzas.filter(ordenanza => 
@@ -132,7 +138,7 @@ export default function OrdenanzasPage() {
 
   // Obtener ordenanzas filtradas por año y término de búsqueda
   const getFilteredOrdenanzasByYear = () => {
-    const filtered: { [key: string]: any[] } = {}
+    const filtered: { [key: string]: Ordenanza[] } = {}
     
     Object.entries(ordenanzasByYear).forEach(([year, ordenanzas]) => {
       // Filtrar por año si se seleccionó uno específico

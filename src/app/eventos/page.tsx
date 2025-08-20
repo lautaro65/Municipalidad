@@ -1,4 +1,5 @@
 "use client"
+import Image from "next/image"
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -244,16 +245,17 @@ export default function EventosPage() {
             >
               {/* Imagen del evento */}
               <div className="relative h-48 overflow-hidden">
-                <img
-                  src={evento.imagen || "/placeholder.svg"}
+                <Image
+                  src={evento.imagen.startsWith('.') ? evento.imagen.replace('./', '/'): evento.imagen || "/placeholder.svg"}
                   alt={evento.titulo}
                   className="w-full h-full object-cover"
-
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  priority={true}
                 />
                 <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 items-center justify-center hidden">
                   <span className="text-gray-500 text-sm">Imagen del evento</span>
                 </div>
-                
                 {/* Badge de fecha estilo calendario */}
                 <div className="absolute top-4 left-4 bg-green-600 text-white rounded-lg p-2 text-center shadow-lg">
                   <div className="text-xs font-medium">{month}</div>
