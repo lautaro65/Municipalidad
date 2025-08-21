@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react"
 import { motion, useInView, useScroll, useTransform } from "framer-motion"
 
-interface TimelineEvent {
+interface TimelineEventData {
   year: number
   title: string
   description: string
@@ -11,7 +11,15 @@ interface TimelineEvent {
   category: "founding" | "development" | "modernization" | "present"
 }
 
-const timelineEvents: TimelineEvent[] = [
+interface TimelineEventProps {
+  event: TimelineEventData
+  index: number
+  isLeft: boolean
+  isVisible: boolean
+  onVisible: () => void
+}
+
+const timelineEvents: TimelineEventData[] = [
   {
     year: 1825,
     title: "Primeros Asentamientos",
@@ -91,9 +99,127 @@ const timelineEvents: TimelineEvent[] = [
   },
 ]
 
+// Componente individual para cada evento del timeline
+function TimelineEvent({ event, index, isLeft, isVisible, onVisible }: TimelineEventProps) {
+  const eventRef = useRef<HTMLDivElement>(null)
+  const isInView = useInView(eventRef, { once: true, amount: 0.3 })
+  console.log(index)
+  useEffect(() => {
+    if (isInView) {
+      onVisible()
+    }
+  }, [isInView, onVisible])
+
+  return (
+    <motion.div
+      ref={eventRef}
+      className="relative"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: isVisible ? 1 : 0 }}
+      transition={{ duration: 0.8 }}
+      style={{ opacity: isVisible ? 1 : 0 }}
+    >
+      {/* Año: centrado en desktop, pegado a la línea en mobile */}
+      <motion.div
+        className="absolute left-4 sm:left-1/2 top-1/2 transform -translate-y-1/2 sm:-translate-x-1/2 z-20"
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ 
+          scale: isVisible ? 1 : 0,
+          opacity: isVisible ? 1 : 0 
+        }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        style={{ 
+          scale: isVisible ? 1 : 0,
+          opacity: isVisible ? 1 : 0 
+        }}
+      >
+        <div className="bg-emerald-500 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg border-4 border-white">
+          <span className="font-bold text-sm">
+            {event.year}
+          </span>
+        </div>
+      </motion.div>
+
+      {/* Contenido principal: apilado en mobile, dos columnas en desktop */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 items-center sm:pl-0 pl-20">
+        {/* Imagen */}
+        <motion.div
+          className={
+            'order-1 sm:' + (isLeft ? 'order-1' : 'order-2')
+          }
+          initial={{ x: isLeft ? -80 : 80, opacity: 0 }}
+          animate={{ 
+            x: isVisible ? 0 : (isLeft ? -80 : 80), 
+            opacity: isVisible ? 1 : 0 
+          }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          style={{ 
+            x: isVisible ? 0 : (isLeft ? -80 : 80), 
+            opacity: isVisible ? 1 : 0 
+          }}
+        >
+          <div className="aspect-[4/3] bg-gray-200 rounded-lg overflow-hidden shadow-lg">
+            <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
+              <span className="text-gray-600 text-sm font-medium">
+                Imagen {event.year}
+              </span>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Texto */}
+        <motion.div
+          className={`order-2 sm:${isLeft ? 'order-2' : 'order-1'} text-left sm:${isLeft ? 'pl-8' : 'pr-8'} pl-0 pr-0`}
+          initial={{ x: isLeft ? 80 : -80, opacity: 0 }}
+          animate={{ 
+            x: isVisible ? 0 : (isLeft ? 80 : -80), 
+            opacity: isVisible ? 1 : 0 
+          }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          style={{ 
+            x: isVisible ? 0 : (isLeft ? 80 : -80), 
+            opacity: isVisible ? 1 : 0 
+          }}
+        >
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            {event.title}
+          </h2>
+          <p className="text-gray-600 leading-relaxed mb-4 text-base">
+            {event.description}
+          </p>
+          <p className="text-sm text-gray-500 leading-relaxed mb-4">
+            {event.details}
+          </p>
+          {/* Categoría */}
+          <div>
+            <span
+              className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                event.category === "founding"
+                  ? "bg-amber-100 text-amber-700"
+                  : event.category === "development"
+                  ? "bg-blue-100 text-blue-700"
+                  : event.category === "modernization"
+                  ? "bg-purple-100 text-purple-700"
+                  : "bg-green-100 text-green-700"
+              }`}
+            >
+              {event.category === "founding"
+                ? "Fundación"
+                : event.category === "development"
+                ? "Desarrollo"
+                : event.category === "modernization"
+                ? "Modernización"
+                : "Actualidad"}
+            </span>
+          </div>
+        </motion.div>
+      </div>
+    </motion.div>
+  )
+}
+
 export default function AnimatedTimeline() {
   const containerRef = useRef<HTMLDivElement>(null)
-  const isInView = useInView(containerRef, { once: false, amount: 0.1 })
   const [visibleEvents, setVisibleEvents] = useState<number[]>([])
 
   const { scrollYProgress } = useScroll({
@@ -103,17 +229,15 @@ export default function AnimatedTimeline() {
 
   const lineProgress = useTransform(scrollYProgress, [0, 1], ["0%", "100%"])
 
-  useEffect(() => {
-    if (isInView) {
-      timelineEvents.forEach((_, index) => {
-        setTimeout(() => {
-          setVisibleEvents((prev) => [...prev, index])
-        }, index * 200)
-      })
-    } else {
-      setVisibleEvents([])
-    }
-  }, [isInView])
+  // Función para agregar un evento a la lista de visibles
+  const addVisibleEvent = (index: number) => {
+    setVisibleEvents(prev => {
+      if (!prev.includes(index)) {
+        return [...prev, index].sort((a, b) => a - b)
+      }
+      return prev
+    })
+  }
 
   return (
     <div className=" bg-white py-20">
@@ -132,9 +256,6 @@ export default function AnimatedTimeline() {
             <motion.div
               className="w-full bg-emerald-500 origin-top"
               style={{ height: lineProgress }}
-              initial={{ height: "0%" }}
-              animate={{ height: isInView ? "100%" : "0%" }}
-              transition={{ duration: 2, ease: "easeInOut" }}
             />
           </div>
 
@@ -144,97 +265,14 @@ export default function AnimatedTimeline() {
               const isVisible = visibleEvents.includes(index)
 
               return (
-                <motion.div
+                <TimelineEvent
                   key={index}
-                  className="relative"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: isVisible ? 1 : 0 }}
-                  transition={{ duration: 0.8, delay: index * 0.2 }}
-                >
-                  {/* Año: centrado en desktop, pegado a la línea en mobile */}
-                  <motion.div
-                    className="absolute left-4 sm:left-1/2 top-1/2 transform -translate-y-1/2 sm:-translate-x-1/2 z-20"
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ 
-                      scale: isVisible ? 1 : 0,
-                      opacity: isVisible ? 1 : 0 
-                    }}
-                    transition={{ duration: 0.5, delay: index * 0.2 + 0.3 }}
-                  >
-                    <div className="bg-emerald-500 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg border-4 border-white">
-                      <span className="font-bold text-sm">
-                        {event.year}
-                      </span>
-                    </div>
-                  </motion.div>
-
-                  {/* Contenido principal: apilado en mobile, dos columnas en desktop */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 items-center sm:pl-0 pl-20">
-                    {/* Imagen */}
-                    <motion.div
-                      className={
-                        'order-1 sm:' + (isLeft ? 'order-1' : 'order-2')
-                      }
-                      initial={{ x: isLeft ? -80 : 80, opacity: 0 }}
-                      animate={{ 
-                        x: isVisible ? 0 : (isLeft ? -80 : 80), 
-                        opacity: isVisible ? 1 : 0 
-                      }}
-                      transition={{ duration: 0.8, delay: index * 0.2 + 0.2 }}
-                    >
-                      <div className="aspect-[4/3] bg-gray-200 rounded-lg overflow-hidden shadow-lg">
-                        <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
-                          <span className="text-gray-600 text-sm font-medium">
-                            Imagen {event.year}
-                          </span>
-                        </div>
-                      </div>
-                    </motion.div>
-
-                    {/* Texto */}
-                    <motion.div
-                      className={`order-2 sm:${isLeft ? 'order-2' : 'order-1'} text-left sm:${isLeft ? 'pl-8' : 'pr-8'} pl-0 pr-0`}
-                      initial={{ x: isLeft ? 80 : -80, opacity: 0 }}
-                      animate={{ 
-                        x: isVisible ? 0 : (isLeft ? 80 : -80), 
-                        opacity: isVisible ? 1 : 0 
-                      }}
-                      transition={{ duration: 0.8, delay: index * 0.2 + 0.4 }}
-                    >
-                      <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                        {event.title}
-                      </h2>
-                      <p className="text-gray-600 leading-relaxed mb-4 text-base">
-                        {event.description}
-                      </p>
-                      <p className="text-sm text-gray-500 leading-relaxed mb-4">
-                        {event.details}
-                      </p>
-                      {/* Categoría */}
-                      <div>
-                        <span
-                          className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                            event.category === "founding"
-                              ? "bg-amber-100 text-amber-700"
-                              : event.category === "development"
-                              ? "bg-blue-100 text-blue-700"
-                              : event.category === "modernization"
-                              ? "bg-purple-100 text-purple-700"
-                              : "bg-green-100 text-green-700"
-                          }`}
-                        >
-                          {event.category === "founding"
-                            ? "Fundación"
-                            : event.category === "development"
-                            ? "Desarrollo"
-                            : event.category === "present"
-                            ? "Modernización"
-                            : "Actualidad"}
-                        </span>
-                      </div>
-                    </motion.div>
-                  </div>
-                </motion.div>
+                  event={event}
+                  index={index}
+                  isLeft={isLeft}
+                  isVisible={isVisible}
+                  onVisible={() => addVisibleEvent(index)}
+                />
               )
             })}
           </div>
